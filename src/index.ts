@@ -1,20 +1,11 @@
-import {
-  ASCIIFont,
-  Box,
-  createCliRenderer,
-  Text,
-  TextAttributes,
-} from "@opentui/core";
+import { createCliRenderer } from "@opentui/core";
+import { App } from "./app";
 
-const renderer = await createCliRenderer({ exitOnCtrlC: true });
+const fileArg = process.argv[2];
 
-renderer.root.add(
-  Box(
-    { alignItems: "center", justifyContent: "center", flexGrow: 1 },
-    Box(
-      { justifyContent: "center", alignItems: "flex-end" },
-      ASCIIFont({ font: "tiny", text: "OpenTUI" }),
-      Text({ content: "What will you build?", attributes: TextAttributes.DIM }),
-    ),
-  ),
-);
+const renderer = await createCliRenderer({ exitOnCtrlC: false });
+const app = new App(renderer);
+
+if (fileArg) {
+  await app.loadFile(fileArg);
+}

@@ -1,10 +1,14 @@
 {
   "name": "dexedit",
-  "module": "src/index.tsx",
+  "module": "src/index.ts",
   "type": "module",
   "private": true,
+  "bin": {
+    "dexedit": "src/index.ts"
+  },
   "scripts": {
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
