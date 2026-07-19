@@ -23,15 +23,30 @@ bun start -- [file]
 Build a standalone executable — no Bun/Node install required to run it:
 
 ```bash
-bun run build   # produces dist/dexedit.exe
+bun run build              # Windows x64, produces dist/dexedit.exe
+bun run build:linux        # Linux x64, produces dist/dexedit-linux-x64
+bun run build:macos-arm64  # macOS Apple Silicon, produces dist/dexedit-macos-arm64
+bun run build:macos-x64    # macOS Intel, produces dist/dexedit-macos-x64
+bun run build:all          # all of the above
 ```
 
-Then put it on your `PATH` so `dexedit [file]` works from anywhere, e.g.:
+Cross-compiling (e.g. building the Linux/macOS binaries from Windows) is supported by Bun's `--target` flag — no matching OS required to build.
+
+Then put it on your `PATH` so `dexedit [file]` works from anywhere, e.g. on Windows:
 
 ```powershell
 mkdir $env:LOCALAPPDATA\dexedit -ErrorAction SilentlyContinue
 copy dist\dexedit.exe $env:LOCALAPPDATA\dexedit\dexedit.exe
 # add %LOCALAPPDATA%\dexedit to your PATH (System Properties > Environment Variables), then open a new terminal
+```
+
+Or on Linux/macOS:
+
+```bash
+mkdir -p ~/.local/bin
+cp dist/dexedit-linux-x64 ~/.local/bin/dexedit   # or the macOS binary for your arch
+chmod +x ~/.local/bin/dexedit
+# ensure ~/.local/bin is on your PATH
 ```
 
 ## Keybindings
