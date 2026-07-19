@@ -45,6 +45,7 @@ export class App {
 
   private filePath: string | null = null;
   private modified = false;
+  private savedText = "";
   private suppressChange = false;
   private statusTimer: ReturnType<typeof setTimeout> | null = null;
   private findAnchor = 0;
@@ -170,6 +171,7 @@ export class App {
     this.suppressChange = true;
     this.textarea.setText(text);
     this.modified = false;
+    this.savedText = text;
     queueMicrotask(() => {
       this.suppressChange = false;
     });
@@ -177,8 +179,20 @@ export class App {
 
   private handleContentChange(): void {
     if (this.suppressChange) return;
-    if (!this.modified) {
-      this.modified = true;
+    this.syncModifiedState();
+  }
+
+  /**
+   * Recompute `modified` against the last-saved snapshot instead of latching to
+   * true. Some mutations (notably undo/redo) don't reliably fire the native
+   * "content-changed" event this used to depend on, the same way vertical cursor
+   * moves don't fire "cursor-changed" — so this is also polled after every
+   * keypress (see handleGlobalKey) rather than trusted to run only from there.
+   */
+  private syncModifiedState(): void {
+    const dirty = this.textarea.plainText !== this.savedText;
+    if (dirty !== this.modified) {
+      this.modified = dirty;
       this.updateChrome();
     }
   }
@@ -262,9 +276,11 @@ export class App {
 
   private writeToDisk(path: string): void {
     try {
-      writeFileSync(path, this.textarea.plainText, "utf8");
+      const text = this.textarea.plainText;
+      writeFileSync(path, text, "utf8");
       this.filePath = path;
       this.modified = false;
+      this.savedText = text;
       this.flash(`Saved ${path}`);
     } catch (err) {
       this.flash(`Error saving: ${(err as Error).message}`);
@@ -350,12 +366,15 @@ export class App {
   // ---- key routing ----
 
   private handleGlobalKey(key: KeyEvent): void {
-    // Vertical cursor movement goes through EditorView (moveUpVisual/moveDownVisual),
-    // which never fires the EditBuffer "cursor-changed" event that onCursorChange relies
-    // on. Poll the real cursor position once this key event has fully finished dispatching
-    // (i.e. after the focused Textarea's own handleKeyPress has run) so Ln/Col stays correct
-    // for every kind of movement, not just the ones that happen to emit that event.
-    queueMicrotask(() => this.updateStatus());
+    // Vertical cursor movement (EditorView.moveUpVisual/moveDownVisual) and undo/redo
+    // don't reliably fire the EditBuffer "cursor-changed"/"content-changed" events that
+    // onCursorChange/onContentChange rely on. Poll real cursor + modified state once this
+    // key event has fully finished dispatching (i.e. after the focused Textarea's own
+    // handleKeyPress has run) instead of trusting those events alone.
+    queueMicrotask(() => {
+      this.syncModifiedState();
+      this.updateStatus();
+    });
 
     if (this.fileDialog.visible) {
       if (key.name === "escape") {
