@@ -13,6 +13,7 @@ bun install                    # install deps
 bun run src/index.ts [file]    # run (or: bun start -- [file])
 bun run --watch src/index.ts   # dev, restarts on save (or: bun dev)
 bunx tsc --noEmit              # typecheck (tsconfig has noEmit: true, strict: true)
+bun run build                  # compile standalone dist/dexedit.exe (bun build --compile)
 ```
 
 There is no test suite and no lint config in this repo — don't assume `bun test` or a linter exists.

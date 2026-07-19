@@ -18,6 +18,22 @@ bun start -- [file]
 
 `file` is optional. If given and it exists, it's opened; if it doesn't exist, dexEdit starts a new buffer pointed at that path (saved there on `Ctrl+S`). If omitted, dexEdit starts with an empty, unsaved buffer.
 
+## Install as a `dexedit` command
+
+Build a standalone executable — no Bun/Node install required to run it:
+
+```bash
+bun run build   # produces dist/dexedit.exe
+```
+
+Then put it on your `PATH` so `dexedit [file]` works from anywhere, e.g.:
+
+```powershell
+mkdir $env:LOCALAPPDATA\dexedit -ErrorAction SilentlyContinue
+copy dist\dexedit.exe $env:LOCALAPPDATA\dexedit\dexedit.exe
+# add %LOCALAPPDATA%\dexedit to your PATH (System Properties > Environment Variables), then open a new terminal
+```
+
 ## Keybindings
 
 | Key | Action |
