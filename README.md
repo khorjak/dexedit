@@ -1,5 +1,8 @@
 # dexEdit
 
+[![GitHub](https://img.shields.io/github/stars/khorjak/dexedit?style=flat)](https://github.com/khorjak/dexedit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Terminal text editor built on [OpenTUI](https://git.new/create-tui).
 
 ## Install
