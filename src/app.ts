@@ -229,7 +229,8 @@ export class App {
     const lines = this.textarea.lineCount;
     this.statusLeft.content = ` Ln ${cursor.row + 1}, Col ${cursor.col + 1}  |  ${lines} lines  `;
     const path = this.filePath ?? "unsaved";
-    this.statusRight.content = `${this.modified ? "● modified" : "saved"}  |  ${path} `;
+    const themeName = (themes[this.themeIndex] ?? themes[0]!).name;
+    this.statusRight.content = `${this.modified ? "● modified" : "saved"}  |  ${themeName}  |  ${path} `;
   }
 
   private flash(message: string): void {

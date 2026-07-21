@@ -78,6 +78,6 @@ chmod +x ~/.local/bin/dexedit
 
 ## Themes
 
-`Ctrl+T` cycles through six built-in themes, in order: Catppuccin Mocha (default) → Catppuccin Macchiato → Catppuccin Latte → Catppuccin Frappé → Dracula → Nord. The chosen theme is saved to `~/.dexeditrc.json` and restored on the next launch; if that file is missing or corrupt, dexEdit silently falls back to Catppuccin Mocha.
+`Ctrl+T` cycles through six built-in themes, in order: Catppuccin Mocha (default) → Catppuccin Macchiato → Catppuccin Latte → Catppuccin Frappé → Dracula → Nord. The active theme name is shown in the status bar. The chosen theme is saved to `~/.dexeditrc.json` and restored on the next launch; if that file is missing or corrupt, dexEdit silently falls back to Catppuccin Mocha.
 
 This project was created using `bun create tui`. [create-tui](https://git.new/create-tui) is the easiest way to get started with OpenTUI.
