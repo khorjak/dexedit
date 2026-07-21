@@ -67,6 +67,8 @@ The fix, and the pattern to follow for anything similar: `handleGlobalKey` sched
 
 One exception: `openGoto()` calls `this.updateStatus()` explicitly right after `gotoLine()`, because that mutation happens inside an `await`ed promise continuation (from `PromptBar`) where the ordering against the queued microtask isn't guaranteed.
 
+`savedText` must be taken from `this.textarea.plainText` *after* `setText()`, never from the raw string passed in. `EditBuffer` normalizes CRLF to LF internally, so a loaded CRLF file's `plainText` never again equals the untouched disk bytes — comparing against the raw input string left `modified` permanently stuck true for any CRLF file, unfixable by any amount of undo since the mismatch predates all edits. See `setContent()`.
+
 ### Reading OpenTUI's API
 
 `@opentui/core` ships only compiled output + `.d.ts` files in `node_modules/@opentui/core` — no bundled docs, no source. The `.d.ts` files (e.g. `renderables/*.d.ts`, `edit-buffer.d.ts`, `editor-view.d.ts`, `Renderable.d.ts`, `renderer.d.ts`) are the primary reference for what's public. For *behavior* that isn't obvious from types alone (event ordering, default keybindings, what a setter actually triggers), grep the compiled chunks directly — `index.js`, `index-7z5n7k9m.js`, `index-za1krqsf.js` — they're deterministically-named esbuild output, not obfuscated, and searchable for the actual implementation (e.g. `defaultTextareaKeyBindings`, `mergeKeyBindings`, `emitWithPriority`).

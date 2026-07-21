@@ -182,7 +182,11 @@ export class App {
     this.suppressChange = true;
     this.textarea.setText(text);
     this.modified = false;
-    this.savedText = text;
+    // Compare against what the buffer actually normalizes to (e.g. it strips \r
+    // from CRLF line endings), not the raw input string — otherwise a CRLF file
+    // is permanently "modified" from the moment it loads, since plainText can
+    // never equal the untouched disk bytes again no matter how much you undo.
+    this.savedText = this.textarea.plainText;
     queueMicrotask(() => {
       this.suppressChange = false;
     });
