@@ -12,6 +12,7 @@ import {
   type SelectOption,
 } from "@opentui/core";
 import { listDir, formatSize } from "./fsUtils";
+import type { Theme } from "./theme";
 
 export type FileDialogMode = "open" | "save";
 
@@ -114,6 +115,29 @@ export class FileDialog {
 
   get visible(): boolean {
     return this.root.visible;
+  }
+
+  applyTheme(theme: Theme): void {
+    this.root.borderColor = theme.blue;
+    this.root.backgroundColor = theme.base;
+    this.pathInput.backgroundColor = theme.surface0;
+    this.pathInput.textColor = theme.text;
+    this.pathInput.focusedBackgroundColor = theme.surface1;
+    this.pathInput.focusedTextColor = theme.text;
+    this.nameInput.backgroundColor = theme.surface0;
+    this.nameInput.textColor = theme.text;
+    this.nameInput.focusedBackgroundColor = theme.surface1;
+    this.nameInput.focusedTextColor = theme.text;
+    this.list.backgroundColor = theme.base;
+    this.list.textColor = theme.text;
+    this.list.focusedBackgroundColor = theme.base;
+    this.list.focusedTextColor = theme.text;
+    this.list.selectedBackgroundColor = theme.surface1;
+    this.list.selectedTextColor = theme.rosewater;
+    this.list.descriptionColor = theme.subtext0;
+    this.list.selectedDescriptionColor = theme.subtext1;
+    this.errorText.fg = theme.red;
+    this.hintText.fg = theme.subtext0;
   }
 
   open(mode: FileDialogMode, startPath: string): Promise<string | null> {

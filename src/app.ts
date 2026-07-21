@@ -14,6 +14,8 @@ import { FileDialog } from "./fileDialog";
 import { ConfirmBox } from "./confirmBox";
 import { FindBar } from "./findBar";
 import { PromptBar } from "./promptBar";
+import { themes, type Theme } from "./theme";
+import { loadThemeName, saveThemeName } from "./themeConfig";
 
 const EDITOR_KEY_BINDINGS: KeyBinding[] = [
   { name: "home", action: "line-home" },
@@ -34,10 +36,12 @@ export class App {
   private readonly root: BoxRenderable;
   private readonly titleText: TextRenderable;
   private readonly hotkeysText: TextRenderable;
+  private readonly titleBar: BoxRenderable;
   private readonly textarea: TextareaRenderable;
   private readonly lineNumbers: LineNumberRenderable;
   private readonly statusLeft: TextRenderable;
   private readonly statusRight: TextRenderable;
+  private readonly statusBar: BoxRenderable;
   private readonly fileDialog: FileDialog;
   private readonly confirmBox: ConfirmBox;
   private readonly findBar: FindBar;
@@ -49,9 +53,14 @@ export class App {
   private suppressChange = false;
   private statusTimer: ReturnType<typeof setTimeout> | null = null;
   private findAnchor = 0;
+  private themeIndex: number;
 
   constructor(renderer: CliRenderer) {
     this.renderer = renderer;
+    this.themeIndex = Math.max(
+      0,
+      themes.findIndex((t) => t.name === loadThemeName()),
+    );
 
     this.root = new BoxRenderable(renderer, {
       flexGrow: 1,
@@ -65,17 +74,17 @@ export class App {
       attributes: TextAttributes.BOLD,
     });
     this.hotkeysText = new TextRenderable(renderer, {
-      content: "^O Open  ^S Save  ^N New  ^F Find  ^G Goto  ^Q Quit ",
+      content: "^O Open  ^S Save  ^N New  ^F Find  ^G Goto  ^T Theme  ^Q Quit ",
       fg: "#11111b",
     });
-    const titleBar = new BoxRenderable(renderer, {
+    this.titleBar = new BoxRenderable(renderer, {
       height: 1,
       flexDirection: "row",
       justifyContent: "space-between",
       backgroundColor: "#89b4fa",
     });
-    titleBar.add(this.titleText);
-    titleBar.add(this.hotkeysText);
+    this.titleBar.add(this.titleText);
+    this.titleBar.add(this.hotkeysText);
 
     this.textarea = new TextareaRenderable(renderer, {
       flexGrow: 1,
@@ -109,7 +118,7 @@ export class App {
       height: 1,
       fg: "#11111b",
     });
-    const statusBar = new BoxRenderable(renderer, {
+    this.statusBar = new BoxRenderable(renderer, {
       height: 1,
       flexDirection: "row",
       justifyContent: "space-between",
@@ -117,8 +126,8 @@ export class App {
       paddingLeft: 1,
       paddingRight: 1,
     });
-    statusBar.add(this.statusLeft);
-    statusBar.add(this.statusRight);
+    this.statusBar.add(this.statusLeft);
+    this.statusBar.add(this.statusRight);
 
     this.fileDialog = new FileDialog(renderer);
     this.confirmBox = new ConfirmBox(renderer);
@@ -126,15 +135,17 @@ export class App {
     this.promptBar = new PromptBar(renderer);
     this.findBar.onInput((value) => this.performFind(value, false, this.findAnchor));
 
-    this.root.add(titleBar);
+    this.root.add(this.titleBar);
     this.root.add(this.lineNumbers);
     this.root.add(this.findBar.root);
     this.root.add(this.promptBar.root);
-    this.root.add(statusBar);
+    this.root.add(this.statusBar);
 
     renderer.root.add(this.root);
     renderer.root.add(this.fileDialog.root);
     renderer.root.add(this.confirmBox.root);
+
+    this.applyTheme(themes[this.themeIndex] ?? themes[0]!);
 
     renderer.keyInput.on("keypress", (key) => this.handleGlobalKey(key));
 
@@ -224,6 +235,35 @@ export class App {
       this.updateStatus();
       this.renderer.requestRender();
     }, 2500);
+  }
+
+  private applyTheme(theme: Theme): void {
+    this.root.backgroundColor = theme.base;
+    this.titleText.fg = theme.crust;
+    this.hotkeysText.fg = theme.crust;
+    this.titleBar.backgroundColor = theme.blue;
+    this.textarea.backgroundColor = theme.base;
+    this.textarea.textColor = theme.text;
+    this.textarea.cursorColor = theme.rosewater;
+    this.textarea.selectionBg = theme.surface1;
+    this.lineNumbers.fg = theme.overlay0;
+    this.lineNumbers.bg = theme.mantle;
+    this.statusLeft.fg = theme.crust;
+    this.statusRight.fg = theme.crust;
+    this.statusBar.backgroundColor = theme.blue;
+    this.fileDialog.applyTheme(theme);
+    this.confirmBox.applyTheme(theme);
+    this.findBar.applyTheme(theme);
+    this.promptBar.applyTheme(theme);
+    this.renderer.requestRender();
+  }
+
+  private cycleTheme(): void {
+    this.themeIndex = (this.themeIndex + 1) % themes.length;
+    const theme = themes[this.themeIndex] ?? themes[0]!;
+    this.applyTheme(theme);
+    saveThemeName(theme.name);
+    this.flash(`Theme: ${theme.name}`);
   }
 
   // ---- commands ----
@@ -464,6 +504,10 @@ export class App {
           return;
         case "g":
           this.openGoto();
+          key.preventDefault();
+          return;
+        case "t":
+          this.cycleTheme();
           key.preventDefault();
           return;
       }

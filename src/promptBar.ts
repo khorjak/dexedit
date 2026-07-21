@@ -5,6 +5,7 @@ import {
   InputRenderableEvents,
   type RenderContext,
 } from "@opentui/core";
+import type { Theme } from "./theme";
 
 /** A one-shot bottom prompt: label + input, resolves with the typed value or null on cancel. */
 export class PromptBar {
@@ -44,6 +45,15 @@ export class PromptBar {
 
   get visible(): boolean {
     return this.root.visible;
+  }
+
+  applyTheme(theme: Theme): void {
+    this.root.backgroundColor = theme.mantle;
+    this.label.fg = theme.yellow;
+    this.input.backgroundColor = theme.mantle;
+    this.input.textColor = theme.text;
+    this.input.focusedBackgroundColor = theme.mantle;
+    this.input.focusedTextColor = theme.text;
   }
 
   ask(label: string, initialValue = ""): Promise<string | null> {

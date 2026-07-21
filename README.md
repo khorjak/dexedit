@@ -66,6 +66,7 @@ chmod +x ~/.local/bin/dexedit
 | `Ctrl+C` / `Ctrl+X` | Copy / Cut selection |
 | `Ctrl+F` | Find (Enter/↓ next, ↑ previous, Esc close) |
 | `Ctrl+G` | Go to line |
+| `Ctrl+T` | Cycle color theme |
 | Arrows, `Home`/`End`, `Ctrl+Home`/`Ctrl+End`, `PageUp`/`PageDown`, `Shift+…` | Navigation & selection |
 
 ### File dialog (`Ctrl+O` / `Ctrl+Shift+S`)
@@ -74,5 +75,9 @@ chmod +x ~/.local/bin/dexedit
 - Use the list below to browse entries; `Enter` on a directory navigates in, `Enter` on a file opens it (Open mode) or fills the filename field (Save mode).
 - `Tab` / `Shift+Tab` cycles focus between the path field, filename field (Save mode), and the list.
 - `Esc` cancels.
+
+## Themes
+
+`Ctrl+T` cycles through six built-in themes, in order: Catppuccin Mocha (default) → Catppuccin Macchiato → Catppuccin Latte → Catppuccin Frappé → Dracula → Nord. The chosen theme is saved to `~/.dexeditrc.json` and restored on the next launch; if that file is missing or corrupt, dexEdit silently falls back to Catppuccin Mocha.
 
 This project was created using `bun create tui`. [create-tui](https://git.new/create-tui) is the easiest way to get started with OpenTUI.

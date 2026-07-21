@@ -33,11 +33,13 @@ Update `README.md` (user-facing usage/keybindings) and this file (architecture/d
 Everything lives flat in `src/`, one file per concern:
 
 - `index.ts` — entry point: creates the renderer (`exitOnCtrlC: false`, since `Ctrl+C` is repurposed for copy), constructs `App`, loads the startup file if given.
-- `app.ts` — the whole application. Owns the `TextareaRenderable` (main buffer), `LineNumberRenderable` gutter, title/status bars, and all four overlays (`FileDialog`, `ConfirmBox`, `FindBar`, `PromptBar`). All commands (open/save/find/goto/etc.) are private methods here.
+- `app.ts` — the whole application. Owns the `TextareaRenderable` (main buffer), `LineNumberRenderable` gutter, title/status bars, and all four overlays (`FileDialog`, `ConfirmBox`, `FindBar`, `PromptBar`). All commands (open/save/find/goto/theme-cycle/etc.) are private methods here.
 - `fileDialog.ts` — the Ctrl+O / Ctrl+Shift+S file browser modal (path input + filename input + directory `SelectRenderable` list).
 - `confirmBox.ts` — Y/N modal for unsaved-changes prompts.
 - `findBar.ts` / `promptBar.ts` — bottom-of-screen bars for find and goto-line. `FindBar` stays open across repeated "find next" presses; `PromptBar` is one-shot (single value, then closes).
 - `fsUtils.ts` — plain directory-listing/formatting helpers used by `fileDialog.ts`.
+- `theme.ts` — the `Theme` type (14 hex-string color roles) and the six built-in palettes: Catppuccin Mocha/Macchiato/Latte/Frappé, Dracula, Nord.
+- `themeConfig.ts` — loads/saves the active theme name to `~/.dexeditrc.json`; falls back silently to the first theme (Mocha) on a missing/corrupt file or an unrecognized theme name.
 
 ### Global key routing
 
@@ -74,3 +76,5 @@ Renderables are constructed as plain classes: `new SomeRenderable(ctx, options)`
 ### Colors
 
 `TextRenderable`/`TextBufferRenderable`-family options use `fg`/`bg`. `BoxRenderable` and the `EditBuffer`-family (`TextareaRenderable`, `InputRenderable`) use `textColor`/`backgroundColor`. These are genuinely different option shapes per base class, not a typo — mixing them up is a compile error caught by `tsc`, not a runtime bug.
+
+Colors come from a `Theme` object (`theme.ts`), not scattered literals. Each renderable is still constructed with a hardcoded Mocha hex value (so it type-checks and looks correct even before the first `applyTheme` call), but `App.applyTheme(theme)` — and a matching `applyTheme(theme)` on each overlay class (`FileDialog`, `ConfirmBox`, `FindBar`, `PromptBar`) — then overwrites every color property from the active `Theme`. This runs once at startup (after `themeConfig.loadThemeName()` resolves the persisted choice) and again on every `Ctrl+T` cycle. `titleBar` and `statusBar` in `app.ts` are `private readonly` instance fields (not constructor-local `const`s) specifically so `applyTheme` can reach them after construction. OpenTUI's renderable color properties (`textColor`, `backgroundColor`, `fg`, `bg`, `borderColor`, etc.) have real setters, so this repaints already-rendered widgets in place — no renderable is ever recreated to change theme.

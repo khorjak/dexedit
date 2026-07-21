@@ -1,4 +1,5 @@
 import { BoxRenderable, TextRenderable, TextAttributes, type RenderContext } from "@opentui/core";
+import type { Theme } from "./theme";
 
 export class ConfirmBox {
   readonly root: BoxRenderable;
@@ -45,6 +46,13 @@ export class ConfirmBox {
 
   get visible(): boolean {
     return this.root.visible;
+  }
+
+  applyTheme(theme: Theme): void {
+    this.root.borderColor = theme.red;
+    this.root.backgroundColor = theme.base;
+    this.messageText.fg = theme.text;
+    this.hintText.fg = theme.subtext0;
   }
 
   ask(message: string): Promise<boolean> {

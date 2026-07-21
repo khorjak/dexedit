@@ -5,6 +5,7 @@ import {
   InputRenderableEvents,
   type RenderContext,
 } from "@opentui/core";
+import type { Theme } from "./theme";
 
 /** Persistent find bar: stays open across repeated "find next" presses. */
 export class FindBar {
@@ -42,6 +43,15 @@ export class FindBar {
 
   get visible(): boolean {
     return this.root.visible;
+  }
+
+  applyTheme(theme: Theme): void {
+    this.root.backgroundColor = theme.mantle;
+    this.label.fg = theme.teal;
+    this.input.backgroundColor = theme.mantle;
+    this.input.textColor = theme.text;
+    this.input.focusedBackgroundColor = theme.mantle;
+    this.input.focusedTextColor = theme.text;
   }
 
   onInput(handler: (value: string) => void): void {
